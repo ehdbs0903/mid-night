@@ -4,8 +4,14 @@ using UnityEngine.Networking;
 
 public class Api_GetStagesInfo
 {
+    public class UserInfo
+    {
+        public StageInfo[] stages;
+    }
+
     public class StageInfo
     {
+        public int account_id;
         public int stage_id;
         public bool is_cleared;
         public CropRankInfo crop_rank;
@@ -14,8 +20,8 @@ public class Api_GetStagesInfo
     public class CropRankInfo
     {
         public int crop_id;
-        public string rank;
-        public string type;
+        public int rank;
+        public int type;
     }
 
     public static IEnumerator Send(int accountId)
@@ -37,6 +43,15 @@ public class Api_GetStagesInfo
             yield break;
         }
 
-        StageInfo stage = JsonConvert.DeserializeObject<StageInfo>(jsonResponse);
+        UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonResponse);
+
+        foreach (var stage in userInfo.stages)
+        {
+            if (!stage.is_cleared)
+                continue;
+            
+            CardManager.cropRankInfoList.Add(stage.crop_rank);
+        }
+
     }
 }

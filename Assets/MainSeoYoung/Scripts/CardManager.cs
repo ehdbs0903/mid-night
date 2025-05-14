@@ -1,11 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class CardManager : MonoBehaviour
 {
     [SerializeField]
     private CardData[] cards;
 
+    public static List<Api_GetStagesInfo.CropRankInfo> cropRankInfoList = new();
+    
     [SerializeField]
     private Color lockColor = new Color(1, 1, 1, 0);
     [SerializeField]
@@ -27,13 +31,13 @@ public class CardManager : MonoBehaviour
     }
 
 
-    public void UnlockCard(CardType type, CardGrade grade)
+    public void UnlockCard(int type, CardGrade grade)
     {
         int index = (int)type + (int)grade;
-
+        
         if (cards[index].isUnlocked)
             return;
-
+        
         // Debug.Log($"Unlocked card{index}");
         
         if (grade == CardGrade.Common)
@@ -55,7 +59,21 @@ public class CardManager : MonoBehaviour
 
     private void CardSpriteOn(int index)
     {
+        if (cards[index].isUnlocked)
+            return;
+        
         cards[index].isUnlocked = true;
         cards[index].image.color = unlockedColor;
+    }
+
+    public void CollectionOpen()
+    {
+        for (int i = 0; i < cropRankInfoList.Count; i++)
+        {
+            int type = (int)cropRankInfoList[i].type;
+            int rank = (int)cropRankInfoList[i].rank;
+            
+            UnlockCard(type,(CardGrade) rank);
+        }
     }
 }

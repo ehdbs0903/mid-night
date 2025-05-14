@@ -5,6 +5,7 @@ public class StartUiOnOff : MonoBehaviour
     [SerializeField] private GameObject stageCan;
     [SerializeField] private GameObject CollectionCan;
     [SerializeField] private GameObject mainCan;
+    [SerializeField] private CardManager cardManager;
 
     void Start()
     {
@@ -29,6 +30,10 @@ public class StartUiOnOff : MonoBehaviour
 
     public void CollectionOn()
     {
+        Api_GetStagesInfo.Send(12914298);
+
+        cardManager.CollectionOpen();
+        
         mainCan.SetActive(false);
         stageCan.SetActive(false);
         CollectionCan.SetActive(true);
@@ -39,8 +44,4 @@ public class StartUiOnOff : MonoBehaviour
         CollectionCan.SetActive(false);
         mainCan.SetActive(true);
     }
-    
-    
-    
-    
 }
