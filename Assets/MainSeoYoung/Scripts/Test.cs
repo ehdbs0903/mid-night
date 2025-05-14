@@ -6,7 +6,8 @@ public class Test : MonoBehaviour
     private CardManager cardManager;
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        Debug.Log(Input.GetKeyDown(KeyCode.A));
+        if (Input.GetKeyDown(KeyCode.A))
         {
             Debug.Log("보통의 감자");
             cardManager.UnlockCard(CardType.Potato, CardGrade.Common);

@@ -10,22 +10,22 @@ public class CardManager : MonoBehaviour
     private Color lockColor = new Color(1, 1, 1, 0);
     [SerializeField]
     private Color unlockedColor = new Color(1, 1, 1, 1);
-    
+
     void Start()
     {
         for (int i = 0; i < cards.Length; i++)
         {
-            if (!cards[i].isUnlocked)
-                break;
-            else
-            {
-                cards[i].image.color = lockColor;
-                Debug.Log($"{cards[i].name} 알파값 조정");
-            }
+            if (cards[i].isUnlocked)
+                continue;
+
+
+            cards[i].image.color = lockColor;
+            // Debug.Log($"{cards[i].name} 알파값 조정");
+
 
         }
     }
-    
+
 
     public void UnlockCard(CardType type, CardGrade grade)
     {
