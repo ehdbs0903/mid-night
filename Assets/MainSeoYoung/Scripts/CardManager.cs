@@ -8,7 +8,7 @@ public class CardManager : MonoBehaviour
     [SerializeField]
     private CardData[] cards;
 
-    public static List<Api_GetStagesInfo.CropRankInfo> cropRankInfoList = new();
+    // public static List<Api_GetStagesInfo.CropRankInfo> cropRankInfoList = new();
 
     [SerializeField] private int lockAlpha = 0;
     [SerializeField] private int unlockedAlpha = 1;
@@ -64,14 +64,14 @@ public class CardManager : MonoBehaviour
         cards[index].canvasGroup.alpha = unlockedAlpha;
     }
 
-    public void CollectionOpen()
-    {
-        for (int i = 0; i < cropRankInfoList.Count; i++)
-        {
-            int type = (int)cropRankInfoList[i].type;
-            int rank = (int)cropRankInfoList[i].rank;
-            
-            UnlockCard(type,(CardGrade) rank);
-        }
-    }
+    // public void CollectionOpen()
+    // {
+    //     for (int i = 0; i < cropRankInfoList.Count; i++)
+    //     {
+    //         int type = (int)cropRankInfoList[i].type;
+    //         int rank = (int)cropRankInfoList[i].rank;
+    //         
+    //         UnlockCard(type,(CardGrade) rank);
+    //     }
+    // }
 }

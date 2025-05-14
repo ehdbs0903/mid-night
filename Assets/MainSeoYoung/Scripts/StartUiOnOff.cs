@@ -30,9 +30,9 @@ public class StartUiOnOff : MonoBehaviour
 
     public void CollectionOn()
     {
-        Api_GetStagesInfo.Send(12914298);
-
-        cardManager.CollectionOpen();
+        // Api_GetStagesInfo.Send(12914298);
+        //
+        // cardManager.CollectionOpen();
         
         mainCan.SetActive(false);
         stageCan.SetActive(false);

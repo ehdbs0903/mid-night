@@ -50,7 +50,7 @@ public class Api_GetStagesInfo
             if (!stage.is_cleared)
                 continue;
             
-            CardManager.cropRankInfoList.Add(stage.crop_rank);
+            // CardManager.cropRankInfoList.Add(stage.crop_rank);
         }
 
     }
