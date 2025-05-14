@@ -7,17 +7,20 @@ using UnityEngine;
 public class VisualScripting : MonoBehaviour
 {
     [Header("UI References")]
+    [Tooltip("Scroll View → Viewport → Content")]
     public Transform contentPanel;
+    [Tooltip("Content에 추가할 텍스트 아이템 Prefab")]
     public GameObject itemPrefab;
-    
+
+    [Header("Target")]
     public GameObject player;
 
-    public float moveDistance = 1f;
-    public float moveDuration = 0.2f;
-    
-    public float rotationAngle = 90f;
+    [Header("Move/Rotate Settings")]
+    public float moveDistance     = 1f;
+    public float moveDuration     = 0.2f;
+    public float rotationAngle    = 90f;
     public float rotationDuration = 0.2f;
-
+    
     private struct Command
     {
         public Func<IEnumerator> action;
@@ -28,8 +31,13 @@ public class VisualScripting : MonoBehaviour
             this.name   = name;
         }
     }
+    
     private List<Command> commandQueue = new List<Command>();
-
+    
+    private bool  isLooping      = false;
+    private int   loopStartIndex = 0;
+    private int   loopCount      = 0;
+    
     public void EnqueueMoveForward()
     {
         commandQueue.Add(new Command(MoveProcess, "Move Forward"));
@@ -48,23 +56,46 @@ public class VisualScripting : MonoBehaviour
         RefreshUI();
     }
     
+    public void EnqueueLoopStart()
+    {
+        if (!isLooping)
+        {
+            isLooping      = true;
+            loopStartIndex = commandQueue.Count;
+            loopCount      = 1;
+        }
+        else
+        {
+            loopCount++;
+        }
+        RefreshUI();
+    }
+
+    public void EnqueueLoopEnd()
+    {
+        if (!isLooping) return;
+
+        int innerCount = commandQueue.Count - loopStartIndex;
+        var inner      = commandQueue.GetRange(loopStartIndex, innerCount);
+
+        commandQueue.RemoveRange(loopStartIndex, innerCount);
+
+        commandQueue.Add(
+            new Command(
+                () => LoopProcess(inner, loopCount),
+                $"Loop x{loopCount}"
+            )
+        );
+
+        isLooping = false;
+        RefreshUI();
+    }
+
+    
     public void ExecuteCommands()
     {
         if (commandQueue.Count == 0) return;
         StartCoroutine(RunCommands());
-    }
-
-    private void RefreshUI()
-    {
-        foreach (Transform child in contentPanel)
-            Destroy(child.gameObject);
-
-        foreach (var cmd in commandQueue)
-        {
-            var go = Instantiate(itemPrefab, contentPanel);
-            var txt = go.GetComponentInChildren<TextMeshProUGUI>();
-            if (txt != null) txt.text = cmd.name;
-        }
     }
 
     private IEnumerator RunCommands()
@@ -74,25 +105,66 @@ public class VisualScripting : MonoBehaviour
             yield return StartCoroutine(cmd.action());
             yield return new WaitForSecondsRealtime(0.5f);
         }
-
+        
         commandQueue.Clear();
         RefreshUI();
+    }
+    
+    private void RefreshUI()
+    {
+        foreach (Transform child in contentPanel)
+            Destroy(child.gameObject);
+
+        int total = commandQueue.Count;
+        for (int i = 0; i <= total; i++)
+        {
+            if (isLooping && i == loopStartIndex)
+            {
+                var startGO = Instantiate(itemPrefab, contentPanel);
+                var startTMP = startGO.GetComponentInChildren<TextMeshProUGUI>();
+                startTMP.text = $"Loop Start x{loopCount}";
+            }
+
+            if (i < total)
+            {
+                var cmdGO = Instantiate(itemPrefab, contentPanel);
+                var cmdTMP = cmdGO.GetComponentInChildren<TextMeshProUGUI>();
+                cmdTMP.text = commandQueue[i].name;
+            }
+        }
+
+        if (isLooping)
+        {
+            var endGO = Instantiate(itemPrefab, contentPanel);
+            var endTMP = endGO.GetComponentInChildren<TextMeshProUGUI>();
+            endTMP.text = "Loop End";
+        }
+    }
+
+    private IEnumerator LoopProcess(List<Command> innerCommands, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            foreach (var cmd in innerCommands)
+            {
+                yield return cmd.action();
+                yield return new WaitForSecondsRealtime(0.5f);
+            }
+        }
     }
 
     private IEnumerator MoveProcess()
     {
         Vector3 startPos = player.transform.position;
-        Vector3 endPos = startPos + player.transform.forward * moveDistance;
-        float elapsed = 0f;
+        Vector3 endPos   = startPos + player.transform.forward * moveDistance;
+        float   t        = 0f;
 
-        while (elapsed < moveDuration)
+        while (t < moveDuration)
         {
-            float t = elapsed / moveDuration;
-            player.transform.position = Vector3.Lerp(startPos, endPos, t);
-            elapsed += Time.deltaTime;
+            player.transform.position = Vector3.Lerp(startPos, endPos, t / moveDuration);
+            t += Time.deltaTime;
             yield return null;
         }
-
         player.transform.position = endPos;
     }
 
@@ -100,16 +172,14 @@ public class VisualScripting : MonoBehaviour
     {
         Quaternion startRot = player.transform.rotation;
         Quaternion endRot   = startRot * Quaternion.Euler(0f, angle, 0f);
-        float elapsed = 0f;
+        float      t        = 0f;
 
-        while (elapsed < rotationDuration)
+        while (t < rotationDuration)
         {
-            float t = elapsed / rotationDuration;
-            player.transform.rotation = Quaternion.Slerp(startRot, endRot, t);
-            elapsed += Time.deltaTime;
+            player.transform.rotation = Quaternion.Slerp(startRot, endRot, t / rotationDuration);
+            t += Time.deltaTime;
             yield return null;
         }
-
         player.transform.rotation = endRot;
     }
 }
