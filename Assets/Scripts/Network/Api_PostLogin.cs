@@ -24,7 +24,7 @@ public class Api_PostLogin
         formData.AddField("nickname", nickname);
         formData.AddField("password", password);
 
-        using var webRequest = UnityWebRequest.Post($"{Constants.Url}/auth/login", formData);
+        using var webRequest = UnityWebRequest.Post($"{Constants.Url}/api/auth/login", formData);
         yield return webRequest.SendWebRequest();
 
         string jsonText = webRequest.downloadHandler.text;

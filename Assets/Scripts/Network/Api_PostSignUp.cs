@@ -23,7 +23,7 @@ public class Api_PostSignUp
         formData.AddField("email", email);
         formData.AddField("name", name);
 
-        using var webRequest = UnityWebRequest.Post($"{Constants.Url}/account/signup", formData);
+        using var webRequest = UnityWebRequest.Post($"{Constants.Url}/api/account/signup", formData);
         yield return webRequest.SendWebRequest();
 
         string jsonText = webRequest.downloadHandler.text;
