@@ -18,9 +18,9 @@ public class Api_GetStagesInfo
         public string type;
     }
 
-    public static IEnumerator Send(int stageId)
+    public static IEnumerator Send(int accountId)
     {
-        string url = $"{Constants.Url}/api/stages/{stageId}";
+        string url = $"{Constants.Url}/api/account/{accountId}/stages";
         using var webRequest = UnityWebRequest.Get(url);
         webRequest.SetRequestHeader("Accept", "application/json");
 
@@ -38,6 +38,5 @@ public class Api_GetStagesInfo
         }
 
         StageInfo stage = JsonConvert.DeserializeObject<StageInfo>(jsonResponse);
-
     }
 }
