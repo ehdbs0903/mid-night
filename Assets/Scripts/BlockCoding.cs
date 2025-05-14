@@ -8,8 +8,7 @@ public class BlockCoding : MonoBehaviour
 {
     [Header("UI References")]
     public Transform contentPanel;
-    public GameObject itemPrefab;  // 기본 prefab fallback
-
+    public GameObject itemPrefab;
     public GameObject movePrefab;
     public GameObject rotateLeftPrefab;
     public GameObject rotateRightPrefab;
@@ -17,18 +16,31 @@ public class BlockCoding : MonoBehaviour
     public GameObject harvestPrefab;
     public GameObject loopStartPrefab;
     public GameObject loopEndPrefab;
-    
     public ParticleSystem waterParticle;
     public ParticleSystem harvestParticle;
+    public TextMeshProUGUI commandCntText;
 
     [Header("Target")]
     public GameObject player;
-
+    
     [Header("Move/Rotate Settings")]
     public float moveDistance     = 1f;
     public float moveDuration     = 0.2f;
     public float rotationAngle    = 90f;
     public float rotationDuration = 0.2f;
+
+    [Header("Command Count")]
+    public int optimalCommandCount = 21;
+    private int currentCommandCount = 0;
+
+    [Header("Harvest Settings")]
+    [Tooltip("씬에 존재하는 총 작물(Soil) 개수")]
+    public int totalCropCount = 4;
+    private int harvestedCount = 0;
+
+    [Header("Game Manager")]
+    [Tooltip("GameUIManager를 인스펙터에서 연결하세요")]
+    public GameUIManager gameUIManager;
 
     private struct Command
     {
@@ -41,38 +53,62 @@ public class BlockCoding : MonoBehaviour
         }
     }
 
-    private List<Command> commandQueue = new List<Command>();
-    private bool  isLooping      = false;
-    private int   loopStartIndex = 0;
-    private int   loopCount      = 0;
+    private List<Command> uiCommands   = new List<Command>();
+    private List<Command> execCommands = new List<Command>();
+    private bool isLooping             = false;
+    private int  loopStartIndexExec    = 0;
+    private int  loopCount             = 0;
+
+    private void Start()
+    {
+        currentCommandCount = 0;
+        harvestedCount      = 0;
+        UpdateCommandCountUI();
+    }
+
+    private void UpdateCommandCountUI()
+    {
+        if (commandCntText != null)
+            commandCntText.text = $"{currentCommandCount} / {optimalCommandCount}";
+    }
 
     public void EnqueueMoveForward()
     {
-        commandQueue.Add(new Command(MoveProcess, "Move Forward"));
+        var cmd = new Command(MoveProcess, "Move Forward");
+        uiCommands.Add(cmd);
+        execCommands.Add(cmd);
         RefreshUI();
     }
 
     public void EnqueueRotateLeft()
     {
-        commandQueue.Add(new Command(() => RotateProcess(-rotationAngle), "Rotate Left"));
+        var cmd = new Command(() => RotateProcess(-rotationAngle), "Rotate Left");
+        uiCommands.Add(cmd);
+        execCommands.Add(cmd);
         RefreshUI();
     }
 
     public void EnqueueRotateRight()
     {
-        commandQueue.Add(new Command(() => RotateProcess(rotationAngle), "Rotate Right"));
+        var cmd = new Command(() => RotateProcess(rotationAngle), "Rotate Right");
+        uiCommands.Add(cmd);
+        execCommands.Add(cmd);
         RefreshUI();
     }
-    
+
     public void EnqueueWatering()
     {
-        commandQueue.Add(new Command(WateringProcess, "Watering"));
+        var cmd = new Command(WateringProcess, "Watering");
+        uiCommands.Add(cmd);
+        execCommands.Add(cmd);
         RefreshUI();
     }
-    
+
     public void EnqueueHarvest()
     {
-        commandQueue.Add(new Command(HarvestProcess, "Harvest"));
+        var cmd = new Command(HarvestProcess, "Harvest");
+        uiCommands.Add(cmd);
+        execCommands.Add(cmd);
         RefreshUI();
     }
 
@@ -80,9 +116,11 @@ public class BlockCoding : MonoBehaviour
     {
         if (!isLooping)
         {
-            isLooping      = true;
-            loopStartIndex = commandQueue.Count;
-            loopCount      = 1;
+            isLooping           = true;
+            loopStartIndexExec  = execCommands.Count;
+            loopCount           = 1;
+            var placeholder     = new Command(NoOpProcess, "Loop Start");
+            uiCommands.Add(placeholder);
         }
         else
         {
@@ -95,16 +133,12 @@ public class BlockCoding : MonoBehaviour
     {
         if (!isLooping) return;
 
-        int innerCount = commandQueue.Count - loopStartIndex;
-        var inner      = commandQueue.GetRange(loopStartIndex, innerCount);
-
-        commandQueue.RemoveRange(loopStartIndex, innerCount);
-        commandQueue.Add(
-            new Command(
-                () => LoopProcess(inner, loopCount),
-                $"Loop x{loopCount}"
-            )
-        );
+        int innerCount = execCommands.Count - loopStartIndexExec;
+        var innerExec  = execCommands.GetRange(loopStartIndexExec, innerCount);
+        execCommands.RemoveRange(loopStartIndexExec, innerCount);
+        var loopCmd    = new Command(() => LoopProcess(innerExec, loopCount), $"Loop x{loopCount}");
+        execCommands.Add(loopCmd);
+        uiCommands.Add(loopCmd);
 
         isLooping = false;
         RefreshUI();
@@ -112,18 +146,26 @@ public class BlockCoding : MonoBehaviour
 
     public void ExecuteCommands()
     {
-        if (commandQueue.Count == 0) return;
+        if (execCommands.Count == 0) return;
+
+        // 명령 개수 누적 및 UI 업데이트
+        currentCommandCount += execCommands.Count;
+        UpdateCommandCountUI();
+
         StartCoroutine(RunCommands());
     }
 
     private IEnumerator RunCommands()
     {
-        foreach (var cmd in commandQueue)
+        foreach (var cmd in execCommands)
         {
             yield return StartCoroutine(cmd.action());
             yield return new WaitForSecondsRealtime(0.5f);
         }
-        commandQueue.Clear();
+
+        execCommands.Clear();
+        uiCommands.Clear();
+        isLooping = false;
         RefreshUI();
     }
 
@@ -132,23 +174,23 @@ public class BlockCoding : MonoBehaviour
         foreach (Transform child in contentPanel)
             Destroy(child.gameObject);
 
-        // Loop Start indicator
-        if (isLooping)
+        foreach (var cmd in uiCommands)
         {
-            var startUI = Instantiate(loopStartPrefab, contentPanel);
-        }
-
-        // Commands
-        foreach (var cmd in commandQueue)
-        {
-            var prefab = GetPrefabForCommand(cmd.name);
-            var cmdGO = Instantiate(prefab, contentPanel);
-        }
-
-        // Loop End indicator
-        if (isLooping)
-        {
-            var endUI = Instantiate(loopEndPrefab, contentPanel);
+            if (cmd.name == "Loop Start")
+            {
+                var go   = Instantiate(loopStartPrefab, contentPanel);
+                var text = go.GetComponentInChildren<TextMeshProUGUI>();
+                if (text != null)
+                    text.text = $"반복 x{loopCount}";
+            }
+            else if (cmd.name.StartsWith("Loop x"))
+            {
+                Instantiate(loopEndPrefab, contentPanel);
+            }
+            else
+            {
+                Instantiate(GetPrefabForCommand(cmd.name), contentPanel);
+            }
         }
     }
 
@@ -161,9 +203,11 @@ public class BlockCoding : MonoBehaviour
             case "Rotate Right": return rotateRightPrefab;
             case "Watering":     return wateringPrefab;
             case "Harvest":      return harvestPrefab;
-            default:               return itemPrefab;
+            default:             return itemPrefab;
         }
     }
+
+    private IEnumerator NoOpProcess() { yield break; }
 
     private IEnumerator LoopProcess(List<Command> innerCommands, int count)
     {
@@ -171,7 +215,7 @@ public class BlockCoding : MonoBehaviour
         {
             foreach (var cmd in innerCommands)
             {
-                yield return cmd.action();
+                yield return StartCoroutine(cmd.action());
                 yield return new WaitForSecondsRealtime(0.5f);
             }
         }
@@ -182,7 +226,6 @@ public class BlockCoding : MonoBehaviour
         Vector3 startPos = player.transform.position;
         Vector3 endPos   = startPos + player.transform.forward * moveDistance;
         float   t        = 0f;
-
         while (t < moveDuration)
         {
             player.transform.position = Vector3.Lerp(startPos, endPos, t / moveDuration);
@@ -197,7 +240,6 @@ public class BlockCoding : MonoBehaviour
         Quaternion startRot = player.transform.rotation;
         Quaternion endRot   = startRot * Quaternion.Euler(0f, angle, 0f);
         float      t        = 0f;
-
         while (t < rotationDuration)
         {
             player.transform.rotation = Quaternion.Slerp(startRot, endRot, t / rotationDuration);
@@ -206,19 +248,56 @@ public class BlockCoding : MonoBehaviour
         }
         player.transform.rotation = endRot;
     }
-    
+
     private IEnumerator WateringProcess()
     {
         waterParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         waterParticle.Play();
-        // yield return new WaitUntil(() => !waterParticle.isPlaying);
+
+        Vector3 origin = player.transform.position + Vector3.up * 0.5f;
+        Vector3 dir    = -player.transform.up;
+        float   maxDist= 2f;
+        Debug.DrawRay(origin, dir * maxDist, Color.red, 10f);
+
+        if (Physics.Raycast(origin, dir, out var hit, maxDist,
+                Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Collide))
+        {
+            var soil = hit.collider.GetComponent<Soil>();
+            if (soil != null)
+                soil.GrowCrop();
+        }
+
         yield return new WaitForSecondsRealtime(0.3f);
     }
 
     private IEnumerator HarvestProcess()
     {
+        harvestParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         harvestParticle.Play();
-        // yield return new WaitUntil(() => !harvestParticle.isPlaying);
+        
+        Vector3 origin = player.transform.position + Vector3.up * 0.5f;
+        Vector3 dir    = -player.transform.up;
+        float   maxDist= 2f;
+        
+        if (Physics.Raycast(origin, dir, out var hit, maxDist,
+                Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Collide))
+        {
+            var soil = hit.collider.GetComponent<Soil>();
+            if (soil != null)
+            {
+                soil.HarvestCrop();
+                
+                harvestedCount++;
+                
+                if (harvestedCount >= totalCropCount && gameUIManager != null)
+                {
+                    gameUIManager.StageEnd();
+                }
+            }
+        }
+
         yield return new WaitForSecondsRealtime(0.3f);
     }
 }
