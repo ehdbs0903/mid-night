@@ -1,11 +1,14 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-public class CardData
+public class CardData : MonoBehaviour
 {
-    public CardType Type;
-    public CardGrade Grade;
-    public bool IsUnlocked = false;
-    public Sprite Sprite;
+    public CardType type;
+    public CardGrade grade;
+    public bool isUnlocked = false;
+
+    public Image image;
     // public string Name;
     // public string Discription;
+
 }
