@@ -9,11 +9,9 @@ public class CardManager : MonoBehaviour
     private CardData[] cards;
 
     public static List<Api_GetStagesInfo.CropRankInfo> cropRankInfoList = new();
-    
-    [SerializeField]
-    private Color lockColor = new Color(1, 1, 1, 0);
-    [SerializeField]
-    private Color unlockedColor = new Color(1, 1, 1, 1);
+
+    [SerializeField] private int lockAlpha = 0;
+    [SerializeField] private int unlockedAlpha = 1;
 
     void Start()
     {
@@ -23,7 +21,7 @@ public class CardManager : MonoBehaviour
                 continue;
 
 
-            cards[i].image.color = lockColor;
+            cards[i].canvasGroup.alpha = lockAlpha;
             // Debug.Log($"{cards[i].name} 알파값 조정");
 
 
@@ -63,7 +61,7 @@ public class CardManager : MonoBehaviour
             return;
         
         cards[index].isUnlocked = true;
-        cards[index].image.color = unlockedColor;
+        cards[index].canvasGroup.alpha = unlockedAlpha;
     }
 
     public void CollectionOpen()
