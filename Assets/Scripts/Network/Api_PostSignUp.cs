@@ -1,12 +1,10 @@
 using System;
 using System.Collections;
-using Mono.Cecil.Cil;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
 
-public class Api_PostLogin
+public class Api_PostSignUp
 {
     public class Result
     {
@@ -15,22 +13,22 @@ public class Api_PostLogin
     }
     
     public static IEnumerator Send(
-        string nickname,
-        string password,
-        Action<string, string> onComplete
+        string nickname, string password, string email, string name,
+        Action<string> onComplete
     )
     {
         WWWForm formData = new WWWForm();
         formData.AddField("nickname", nickname);
         formData.AddField("password", password);
+        formData.AddField("email", email);
+        formData.AddField("name", name);
 
-        using var webRequest = UnityWebRequest.Post($"{Constants.Url}/auth/login", formData);
+        using var webRequest = UnityWebRequest.Post($"{Constants.Url}/account/signup", formData);
         yield return webRequest.SendWebRequest();
 
         string jsonText = webRequest.downloadHandler.text;
-
         Result result = JsonConvert.DeserializeObject<Result>(jsonText);
-        
-        onComplete?.Invoke(result.code, result.message);
+
+        onComplete?.Invoke(result.code);
     }
 }

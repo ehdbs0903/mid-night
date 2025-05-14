@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class StartUIManager : MonoBehaviour
@@ -7,10 +8,10 @@ public class StartUIManager : MonoBehaviour
     public GameObject LoginPanel;
     public GameObject RegisterPanel;
     
-    public InputField IDInputField;
+    public InputField NicknameInputField;
     public InputField PasswordInputField;
     
-    public InputField RegisterIDInputField;
+    public InputField RegisterNicknameInputField;
     public InputField RegisterPasswordInputField;
     public InputField RegisterPasswordEmailInputField;
     public InputField RegisterNameInputField;
@@ -19,41 +20,81 @@ public class StartUIManager : MonoBehaviour
     {
         startPanel.SetActive(false);
         LoginPanel.SetActive(true);
+        
+        NicknameInputField.text = "";
+        PasswordInputField.text = "";
     }
     
     public void OnSignInButtonClick()
     {
-        // 로그인 api 호출
-        Debug.Log("11");
+        string nickname = NicknameInputField.text;
+        string password = PasswordInputField.text;
         
-        // 성공하면 씬 넘기기
-        
-        // 실패하면 에러 메시지 띄우기
-        
-        // 인풋 필드 초기화
-        IDInputField.text = "";
-        PasswordInputField.text = "";
+        StartCoroutine(
+            Api_PostLogin.Send(
+                nickname,
+                password,
+                (code, message) => {
+                    if (code == "200")
+                    {
+                        Debug.Log("Login successful: " + message);
+                        SceneManager.LoadScene(1);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Login failed (code={code}): {message}");
+                    }
+
+                    NicknameInputField.text = "";
+                    PasswordInputField.text = "";
+                }
+            )
+        );
     }
     
     public void OnSignUpButtonClick()
     {
         LoginPanel.SetActive(false);
         RegisterPanel.SetActive(true);
+        
+        RegisterNicknameInputField.text = "";
+        RegisterPasswordInputField.text = "";
+        RegisterNicknameInputField.text = "";
+        RegisterPasswordInputField.text = "";
     }
     
     public void OnConfirmButtonClick()
     {
-        // 회원가입 api 호출
-        Debug.Log("22");
-        RegisterPanel.SetActive(false);
-        LoginPanel.SetActive(true);
-        
-        // 인풋 필드 초기화
-        RegisterIDInputField.text = "";
-        RegisterPasswordInputField.text = "";
-        RegisterPasswordEmailInputField.text = "";
-        RegisterNameInputField.text = "";
+        string nickname = RegisterNicknameInputField.text;
+        string password = RegisterPasswordInputField.text;
+        string email    = RegisterPasswordEmailInputField.text;
+        string name     = RegisterNameInputField.text;
+
+        StartCoroutine(
+            Api_PostSignUp.Send(
+                nickname, password, email, name,
+                code => {
+                    if (code == "200")
+                    {
+                        SceneManager.LoadScene(1);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Registration failed: code=" + code);
+                    }
+
+                    RegisterPanel.SetActive(false);
+                    LoginPanel.SetActive(true);
+
+                    RegisterNicknameInputField.text      = "";
+                    RegisterPasswordInputField.text      = "";
+                    RegisterPasswordEmailInputField.text = "";
+                    RegisterNameInputField.text          = "";
+                }
+            )
+        );
     }
+
     
     public void OnCancelButtonClick()
     {
