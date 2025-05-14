@@ -34,7 +34,7 @@ public class CardManager : MonoBehaviour
         if (cards[index].isUnlocked)
             return;
 
-        Debug.Log($"Unlocked card{index}");
+        // Debug.Log($"Unlocked card{index}");
         
         if (grade == CardGrade.Common)
         {

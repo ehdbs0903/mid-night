@@ -6,7 +6,7 @@ public class Test : MonoBehaviour
     private CardManager cardManager;
     void Update()
     {
-        Debug.Log(Input.GetKeyDown(KeyCode.A));
+        // Debug.Log(Input.GetKeyDown(KeyCode.A));
         if (Input.GetKeyDown(KeyCode.A))
         {
             Debug.Log("보통의 감자");
