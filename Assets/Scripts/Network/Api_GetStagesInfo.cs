@@ -1,42 +1,34 @@
 using System.Collections;
-using System.Text;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 
-public class Api_UpdateStage
+public class Api_GetStagesInfo
 {
-    private class PatchRequest
+    public class UserInfo
     {
-        public bool IsCleared;
+        public StageInfo[] stages;
     }
 
     public class StageInfo
     {
-        public int StageId;
-        public bool IsCleared;
-        public CropRankInfo CropRank;
+        public int account_id;
+        public int stage_id;
+        public bool is_cleared;
+        public CropRankInfo crop_rank;
     }
 
     public class CropRankInfo
     {
-        public int CropId;
-        public int Rank;
-        public string ImageUrl;
+        public int crop_id;
+        public int rank;
+        public int type;
     }
-    
-    public static IEnumerator Send(int stageId, bool isCleared)
+
+    public static IEnumerator Send(int accountId)
     {
-        string url = $"{Constants.Url}/stages/{stageId}";
-
-        var patchData = new PatchRequest { IsCleared = isCleared };
-        string jsonPayload = JsonConvert.SerializeObject(patchData);
-
-        var webRequest = new UnityWebRequest(url, "PATCH")
-        {
-            uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonPayload)),
-            downloadHandler = new DownloadHandlerBuffer()
-        };
-        webRequest.SetRequestHeader("Content-Type", "application/json");
+        string url = $"{Constants.Url}/api/account/{accountId}/stages";
+        using var webRequest = UnityWebRequest.Get(url);
+        webRequest.SetRequestHeader("Accept", "application/json");
 
         yield return webRequest.SendWebRequest();
 
@@ -46,6 +38,20 @@ public class Api_UpdateStage
         }
 
         string jsonResponse = webRequest.downloadHandler.text;
-        StageInfo updatedStage = JsonConvert.DeserializeObject<StageInfo>(jsonResponse);
+        if (string.IsNullOrEmpty(jsonResponse))
+        {
+            yield break;
+        }
+
+        UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonResponse);
+
+        foreach (var stage in userInfo.stages)
+        {
+            if (!stage.is_cleared)
+                continue;
+            
+            CardManager.cropRankInfoList.Add(stage.crop_rank);
+        }
+
     }
 }

@@ -7,7 +7,7 @@ public class CardData : MonoBehaviour
     public CardGrade grade;
     public bool isUnlocked = false;
 
-    public Image image;
+    public CanvasGroup canvasGroup;
     // public string Name;
     // public string Discription;
 
