@@ -7,9 +7,16 @@ public class Api_GetUserInfo
 {
     public class Result
     {
-        public string nickname;
-        public string email;
-        public string name;
+        public string account_id;
+        
+        public class Stages
+        {
+            public string stage_id;
+            public bool is_cleared;
+            public string name;
+            public string created_at;
+            public string updated_at;
+        }
     }
 
     public static IEnumerator Send(string message)
