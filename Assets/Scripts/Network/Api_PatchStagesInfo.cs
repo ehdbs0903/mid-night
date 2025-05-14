@@ -1,14 +1,17 @@
+using System;
 using System.Collections;
 using System.Text;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 
-public class Api_PatchStage
+public class Api_PostStage
 {
     public class RequestData
     {
-        public bool is_cleared;
+        public int user_id;
+        public int crop_rank;
+        public string crop_type;
     }
     
     public class Data
@@ -24,11 +27,13 @@ public class Api_PatchStage
     }
     
 
-    public static IEnumerator Send(int stageId, bool isCleared)
+    public static IEnumerator Send(
+        int stageId,
+        RequestData payload,
+        Action<Result> onComplete
+    )
     {
         string url = $"{Constants.Url}/api/stages/{stageId}";
-
-        var payload = new RequestData { is_cleared = isCleared };
         string jsonPayload = JsonConvert.SerializeObject(payload);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
 
@@ -37,7 +42,6 @@ public class Api_PatchStage
             uploadHandler   = new UploadHandlerRaw(bodyRaw),
             downloadHandler = new DownloadHandlerBuffer()
         };
-
         webRequest.SetRequestHeader("Content-Type", "application/json");
         webRequest.SetRequestHeader("Accept", "application/json");
 
@@ -45,15 +49,18 @@ public class Api_PatchStage
 
         if (webRequest.result != UnityWebRequest.Result.Success)
         {
+            onComplete?.Invoke(null);
             yield break;
         }
 
         string jsonResponse = webRequest.downloadHandler.text;
         if (string.IsNullOrEmpty(jsonResponse))
         {
+            onComplete?.Invoke(null);
             yield break;
         }
 
         Result result = JsonConvert.DeserializeObject<Result>(jsonResponse);
+        onComplete?.Invoke(result);
     }
 }

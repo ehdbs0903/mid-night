@@ -1,6 +1,6 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class StartUIManager : MonoBehaviour
 {
@@ -8,17 +8,16 @@ public class StartUIManager : MonoBehaviour
     public GameObject LoginPanel;
     public GameObject RegisterPanel;
     
-    public InputField NicknameInputField;
-    public InputField PasswordInputField;
+    public TMP_InputField NicknameInputField;
+    public TMP_InputField PasswordInputField;
     
-    public InputField RegisterNicknameInputField;
-    public InputField RegisterPasswordInputField;
-    public InputField RegisterPasswordEmailInputField;
-    public InputField RegisterNameInputField;
+    public TMP_InputField RegisterNicknameInputField;
+    public TMP_InputField RegisterPasswordInputField;
+    public TMP_InputField RegisterEmailInputField;
+
     
     public void OnStartButtonClick()
     {
-        startPanel.SetActive(false);
         LoginPanel.SetActive(true);
         
         NicknameInputField.text = "";
@@ -34,7 +33,9 @@ public class StartUIManager : MonoBehaviour
             Api_PostLogin.Send(
                 nickname,
                 password,
-                (code, message) => {
+                (code, message) =>
+                {
+                    Debug.Log(code);
                     if (code == "200")
                     {
                         Debug.Log("Login successful: " + message);
@@ -59,20 +60,18 @@ public class StartUIManager : MonoBehaviour
         
         RegisterNicknameInputField.text = "";
         RegisterPasswordInputField.text = "";
-        RegisterNicknameInputField.text = "";
-        RegisterPasswordInputField.text = "";
+        RegisterEmailInputField.text = "";
     }
     
     public void OnConfirmButtonClick()
     {
         string nickname = RegisterNicknameInputField.text;
         string password = RegisterPasswordInputField.text;
-        string email    = RegisterPasswordEmailInputField.text;
-        string name     = RegisterNameInputField.text;
+        string email    = RegisterEmailInputField.text;
 
         StartCoroutine(
             Api_PostSignUp.Send(
-                nickname, password, email, name,
+                nickname, password, password, email, nickname,
                 code => {
                     if (code == "200")
                     {
@@ -86,20 +85,23 @@ public class StartUIManager : MonoBehaviour
                     RegisterPanel.SetActive(false);
                     LoginPanel.SetActive(true);
 
-                    RegisterNicknameInputField.text      = "";
-                    RegisterPasswordInputField.text      = "";
-                    RegisterPasswordEmailInputField.text = "";
-                    RegisterNameInputField.text          = "";
+                    RegisterNicknameInputField.text = "";
+                    RegisterPasswordInputField.text = "";
+                    RegisterEmailInputField.text = "";
                 }
             )
         );
     }
 
     
-    public void OnCancelButtonClick()
+    public void OnXButtonClickLogin()
+    {
+        LoginPanel.SetActive(false);
+    }
+    
+    public void OnXButtonClickRegister()
     {
         RegisterPanel.SetActive(false);
-        startPanel.SetActive(true);
     }
     
     public void OnExitButtonClick()

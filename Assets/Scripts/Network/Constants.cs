@@ -1,4 +1,4 @@
 public static class Constants
 {
-    public const string Url = "https://192.168.0.33:7788";
+    public const string Url = "http://172.16.17.2:8080";
 }
