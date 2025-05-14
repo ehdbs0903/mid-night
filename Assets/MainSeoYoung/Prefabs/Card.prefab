@@ -212,4 +212,4 @@ MonoBehaviour:
   type: 0
   grade: 1
   isUnlocked: 0
-  image: {fileID: 0}
+  canvasGroup: {fileID: 3761349322264657821}
