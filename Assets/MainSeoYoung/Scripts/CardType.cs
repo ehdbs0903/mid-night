@@ -7,5 +7,7 @@ public enum CardType
     Rice = 12,
     Potato = 16,
     Pea = 20,
-    Corn = 24
+    Corn = 24,
+    
+    Title = 1000
 }
