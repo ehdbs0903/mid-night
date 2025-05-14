@@ -1,43 +1,27 @@
 using System.Collections;
-using System.Text;
 using Newtonsoft.Json;
-using UnityEngine;
 using UnityEngine.Networking;
 
-public class Api_UpdateStage
+public class Api_GetStagesInfo
 {
-    private class PatchRequest
-    {
-        public bool IsCleared;
-    }
-
     public class StageInfo
     {
-        public int StageId;
-        public bool IsCleared;
-        public CropRankInfo CropRank;
+        public int stage_id;
+        public bool is_cleared;
+        public CropRankInfo crop_rank;
     }
 
     public class CropRankInfo
     {
-        public int CropId;
-        public string Rank;
-        public string Type;
+        public int crop_id;
+        public string rank;
+        public string type;
     }
 
-    public static IEnumerator Send(int stageId, bool isCleared)
+    public static IEnumerator Send(int stageId)
     {
         string url = $"{Constants.Url}/api/stages/{stageId}";
-
-        var patchData = new PatchRequest { IsCleared = isCleared };
-        string jsonPayload = JsonConvert.SerializeObject(patchData);
-
-        using var webRequest = new UnityWebRequest(url, "PATCH")
-        {
-            uploadHandler   = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonPayload)),
-            downloadHandler = new DownloadHandlerBuffer()
-        };
-        webRequest.SetRequestHeader("Content-Type", "application/json");
+        using var webRequest = UnityWebRequest.Get(url);
         webRequest.SetRequestHeader("Accept", "application/json");
 
         yield return webRequest.SendWebRequest();
@@ -53,6 +37,7 @@ public class Api_UpdateStage
             yield break;
         }
 
-        var updatedStage = JsonConvert.DeserializeObject<StageInfo>(jsonResponse);
+        StageInfo stage = JsonConvert.DeserializeObject<StageInfo>(jsonResponse);
+
     }
 }

@@ -7,10 +7,10 @@ public class Api_GetUserInfo
 {
     public class UserInfoResponse
     {
-        public int AccountId;
-        public string Nickname;
-        public string Email;
-        public string Name;
+        public int accountid;
+        public string nickname;
+        public string email;
+        public string name;
         
     }
 

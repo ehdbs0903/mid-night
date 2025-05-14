@@ -1,13 +1,20 @@
 using System;
 using System.Collections;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class Api_PostSignUp
 {
+    public class Data
+    {
+    }
+    
     public class Result
     {
+        public bool is_success;
+        [CanBeNull] public Data data;
         public string code;
         public string message;
     }

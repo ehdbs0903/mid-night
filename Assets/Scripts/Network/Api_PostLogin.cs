@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using JetBrains.Annotations;
 using Mono.Cecil.Cil;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -8,8 +9,14 @@ using UnityEngine.SceneManagement;
 
 public class Api_PostLogin
 {
+    public class Data
+    {
+    }
+    
     public class Result
     {
+        public bool is_success;
+        [CanBeNull] public Data data;
         public string code;
         public string message;
     }
