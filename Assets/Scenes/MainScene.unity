@@ -696,6 +696,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2004630653726801774, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
+      propertyPath: m_text
+      value: Doyun
+      objectReference: {fileID: 0}
     - target: {fileID: 2365211578222411560, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -804,6 +808,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: StageOff
       objectReference: {fileID: 0}
+    - target: {fileID: 4536553192551558225, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
+      propertyPath: m_text
+      value: Pumpkin
+      objectReference: {fileID: 0}
     - target: {fileID: 4612185581947228003, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -903,6 +911,22 @@ PrefabInstance:
     - target: {fileID: 5539591351318820682, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5712124530283674017, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1504266848567498004}
+    - target: {fileID: 5712124530283674017, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnStageClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 5712124530283674017, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: StartUiOnOff, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5712124530283674017, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6898645458216871801, guid: fba75f62babebce4480f3ae8cf941285, type: 3}
       propertyPath: m_AnchorMax.y

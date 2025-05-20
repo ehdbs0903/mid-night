@@ -22,7 +22,7 @@ public class BlockCoding : MonoBehaviour
 
     [Header("Target")]
     public GameObject player;
-    
+
     [Header("Move/Rotate Settings")]
     public float moveDistance     = 1f;
     public float moveDuration     = 0.2f;
@@ -34,12 +34,10 @@ public class BlockCoding : MonoBehaviour
     private int currentCommandCount = 0;
 
     [Header("Harvest Settings")]
-    [Tooltip("씬에 존재하는 총 작물(Soil) 개수")]
     public int totalCropCount = 4;
     private int harvestedCount = 0;
 
     [Header("Game Manager")]
-    [Tooltip("GameUIManager를 인스펙터에서 연결하세요")]
     public GameUIManager gameUIManager;
 
     private struct Command
@@ -77,6 +75,8 @@ public class BlockCoding : MonoBehaviour
         var cmd = new Command(MoveProcess, "Move Forward");
         uiCommands.Add(cmd);
         execCommands.Add(cmd);
+        currentCommandCount++;
+        UpdateCommandCountUI();
         RefreshUI();
     }
 
@@ -85,6 +85,8 @@ public class BlockCoding : MonoBehaviour
         var cmd = new Command(() => RotateProcess(-rotationAngle), "Rotate Left");
         uiCommands.Add(cmd);
         execCommands.Add(cmd);
+        currentCommandCount++;
+        UpdateCommandCountUI();
         RefreshUI();
     }
 
@@ -93,6 +95,8 @@ public class BlockCoding : MonoBehaviour
         var cmd = new Command(() => RotateProcess(rotationAngle), "Rotate Right");
         uiCommands.Add(cmd);
         execCommands.Add(cmd);
+        currentCommandCount++;
+        UpdateCommandCountUI();
         RefreshUI();
     }
 
@@ -101,6 +105,8 @@ public class BlockCoding : MonoBehaviour
         var cmd = new Command(WateringProcess, "Watering");
         uiCommands.Add(cmd);
         execCommands.Add(cmd);
+        currentCommandCount++;
+        UpdateCommandCountUI();
         RefreshUI();
     }
 
@@ -109,6 +115,8 @@ public class BlockCoding : MonoBehaviour
         var cmd = new Command(HarvestProcess, "Harvest");
         uiCommands.Add(cmd);
         execCommands.Add(cmd);
+        currentCommandCount++;
+        UpdateCommandCountUI();
         RefreshUI();
     }
 
@@ -116,15 +124,19 @@ public class BlockCoding : MonoBehaviour
     {
         if (!isLooping)
         {
-            isLooping           = true;
-            loopStartIndexExec  = execCommands.Count;
-            loopCount           = 1;
-            var placeholder     = new Command(NoOpProcess, "Loop Start");
+            isLooping          = true;
+            loopStartIndexExec = execCommands.Count;
+            loopCount          = 1;
+            var placeholder    = new Command(NoOpProcess, "Loop Start");
             uiCommands.Add(placeholder);
+            currentCommandCount++;
+            UpdateCommandCountUI();
         }
         else
         {
             loopCount++;
+            currentCommandCount++;
+            UpdateCommandCountUI();
         }
         RefreshUI();
     }
@@ -139,19 +151,15 @@ public class BlockCoding : MonoBehaviour
         var loopCmd    = new Command(() => LoopProcess(innerExec, loopCount), $"Loop x{loopCount}");
         execCommands.Add(loopCmd);
         uiCommands.Add(loopCmd);
-
         isLooping = false;
+        currentCommandCount++;
+        UpdateCommandCountUI();
         RefreshUI();
     }
 
     public void ExecuteCommands()
     {
         if (execCommands.Count == 0) return;
-
-        // 명령 개수 누적 및 UI 업데이트
-        currentCommandCount += execCommands.Count;
-        UpdateCommandCountUI();
-
         StartCoroutine(RunCommands());
     }
 
@@ -162,7 +170,6 @@ public class BlockCoding : MonoBehaviour
             yield return StartCoroutine(cmd.action());
             yield return new WaitForSecondsRealtime(0.5f);
         }
-
         execCommands.Clear();
         uiCommands.Clear();
         isLooping = false;
@@ -253,12 +260,9 @@ public class BlockCoding : MonoBehaviour
     {
         waterParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         waterParticle.Play();
-
         Vector3 origin = player.transform.position + Vector3.up * 0.5f;
         Vector3 dir    = -player.transform.up;
         float   maxDist= 2f;
-        Debug.DrawRay(origin, dir * maxDist, Color.red, 10f);
-
         if (Physics.Raycast(origin, dir, out var hit, maxDist,
                 Physics.DefaultRaycastLayers,
                 QueryTriggerInteraction.Collide))
@@ -267,7 +271,6 @@ public class BlockCoding : MonoBehaviour
             if (soil != null)
                 soil.GrowCrop();
         }
-
         yield return new WaitForSecondsRealtime(0.3f);
     }
 
@@ -275,11 +278,9 @@ public class BlockCoding : MonoBehaviour
     {
         harvestParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         harvestParticle.Play();
-        
         Vector3 origin = player.transform.position + Vector3.up * 0.5f;
         Vector3 dir    = -player.transform.up;
         float   maxDist= 2f;
-        
         if (Physics.Raycast(origin, dir, out var hit, maxDist,
                 Physics.DefaultRaycastLayers,
                 QueryTriggerInteraction.Collide))
@@ -288,16 +289,11 @@ public class BlockCoding : MonoBehaviour
             if (soil != null)
             {
                 soil.HarvestCrop();
-                
                 harvestedCount++;
-                
                 if (harvestedCount >= totalCropCount && gameUIManager != null)
-                {
                     gameUIManager.StageEnd();
-                }
             }
         }
-
         yield return new WaitForSecondsRealtime(0.3f);
     }
 }

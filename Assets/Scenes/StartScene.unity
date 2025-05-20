@@ -1718,7 +1718,7 @@ GameObject:
   - component: {fileID: 3138538048252682034}
   - component: {fileID: 6763775205103305026}
   m_Layer: 5
-  m_Name: "Image_Title \uC774\uBBF8\uC9C0 \uBC14\uAFD4\uC57C\uD574\uC694"
+  m_Name: Image_Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6019,7 +6019,7 @@ RectTransform:
   m_GameObject: {fileID: 283805866609682244}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 2.0634687, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 772794979692200758}
@@ -6234,7 +6234,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1b6787f827c1143c694a1b7342844b41, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b15ad331a8c208449b34bf3d19503f8a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

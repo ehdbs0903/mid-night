@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StartUiOnOff : MonoBehaviour
 {
@@ -43,5 +44,10 @@ public class StartUiOnOff : MonoBehaviour
     {
         CollectionCan.SetActive(false);
         mainCan.SetActive(true);
+    }
+
+    public void OnStageClick()
+    {
+        SceneManager.LoadScene(2);
     }
 }

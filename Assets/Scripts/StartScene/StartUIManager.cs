@@ -26,31 +26,32 @@ public class StartUIManager : MonoBehaviour
     
     public void OnSignInButtonClick()
     {
-        string nickname = NicknameInputField.text;
-        string password = PasswordInputField.text;
-        
-        StartCoroutine(
-            Api_PostLogin.Send(
-                nickname,
-                password,
-                (code, message) =>
-                {
-                    Debug.Log(code);
-                    if (code == "200")
-                    {
-                        Debug.Log("Login successful: " + message);
-                        SceneManager.LoadScene(1);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Login failed (code={code}): {message}");
-                    }
-
-                    NicknameInputField.text = "";
-                    PasswordInputField.text = "";
-                }
-            )
-        );
+        SceneManager.LoadScene(1);
+        // string nickname = NicknameInputField.text;
+        // string password = PasswordInputField.text;
+        //
+        // StartCoroutine(
+        //     Api_PostLogin.Send(
+        //         nickname,
+        //         password,
+        //         (code, message) =>
+        //         {
+        //             Debug.Log(code);
+        //             if (code == "200")
+        //             {
+        //                 Debug.Log("Login successful: " + message);
+        //                 SceneManager.LoadScene(1);
+        //             }
+        //             else
+        //             {
+        //                 Debug.LogWarning($"Login failed (code={code}): {message}");
+        //             }
+        //
+        //             NicknameInputField.text = "";
+        //             PasswordInputField.text = "";
+        //         }
+        //     )
+        // );
     }
     
     public void OnSignUpButtonClick()
@@ -68,7 +69,7 @@ public class StartUIManager : MonoBehaviour
         string nickname = RegisterNicknameInputField.text;
         string password = RegisterPasswordInputField.text;
         string email    = RegisterEmailInputField.text;
-
+        
         StartCoroutine(
             Api_PostSignUp.Send(
                 nickname, password, password, email, nickname,
@@ -81,10 +82,10 @@ public class StartUIManager : MonoBehaviour
                     {
                         Debug.LogWarning("Registration failed: code=" + code);
                     }
-
+        
                     RegisterPanel.SetActive(false);
                     LoginPanel.SetActive(true);
-
+        
                     RegisterNicknameInputField.text = "";
                     RegisterPasswordInputField.text = "";
                     RegisterEmailInputField.text = "";
